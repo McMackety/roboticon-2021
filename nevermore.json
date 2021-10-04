@@ -1,0 +1,11 @@
+{
+	"name": "roboticon",
+	"author": "Chase MacDonnell",
+	"email": "",
+	"url": "",
+	"pluginType": "GAME",
+	"permissions": [],
+	"pluginPath": "dist/plugin.bundle.js",
+	"frontendPath": "dist/frontend.bundle.js",
+	"enabled": true
+}

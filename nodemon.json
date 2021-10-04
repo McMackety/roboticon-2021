@@ -1,0 +1,8 @@
+{
+  "watch": [
+    "widgets",
+    "plugin"
+  ],
+  "ext": "ts,json,tsx",
+  "exec": "npm run run-local"
+}
