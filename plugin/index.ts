@@ -1,82 +1,32 @@
-/* Alliance Station Definition: enum AllianceStation {
-  RED1,
-  RED2,
-  RED3,
-  BLUE1,
-  BLUE2,
-  BLUE3,
-  NONE
-}*/
+import { DanceParty } from "./games/DanceParty";
+import Game from "./games/game";
+import { GameType } from "./games/GameUtils";
+import { StunBall } from "./games/StunBall";
 
-interface StartTimerMessage {
-  time: number,
-  teams: TeamToAllianceStation[]
-}
+class App {
+  game: Game;
+  constructor() {
+    this.game = new Game(GameType.BASIC);
+    Nevermore.PubSub.subscribe("roboticonSwitchGames", async (gameType: GameType) => this.swapGames(gameType))
+    Nevermore.Field.on("tick", async () =>  await this.tick());
+  }
 
-interface TeamToAllianceStation {
-  teamNum: number,
-  allianceStation: Nevermore.Field.AllianceStation
-}
+  async tick() {
+    await this.game.tick();
+  }
 
-let timeLeft = 0;
-let enabled = false;
-
-Nevermore.PubSub.subscribe("start_roboticon_game", async (newTime: number) => {
-  timeLeft = newTime;
-  enabled = true;
-})
-
-Nevermore.PubSub.subscribe("stop_roboticon_game", async () => {
-  timeLeft = 0;
-  enabled = false;
-})
-
-Nevermore.PubSub.subscribe("pause_roboticon_game", async () => {
-  enabled = false;
-})
-
-Nevermore.PubSub.subscribe("unpause_roboticon_game", async () => {
-  enabled = true;
-})
-
-Nevermore.Field.on("tick", async () => {
-  if (enabled) {
-    Nevermore.PubSub.publish("roboticon_tick", {
-      timeLeft: timeLeft,
-      enabled: enabled});
-    let stations = await Nevermore.Field.getDriverStations();
-    for (let station of stations) {
-      let state = await station.getState();
-      await station.setState({
-        emergencyStop: false,
-        enable: true,
-        mode: Nevermore.Field.Mode.TELEOP,
-        teamNumber: state.teamNumber,
-        allianceStation: state.allianceStation,
-        status: Nevermore.Field.DriverStationStatus.GOOD,
-        sequenceNumber: 0,
-        timeToDisplay: timeLeft,
-        matchNumber: 1,
-        eventName: "roboticon-2021"
-      });
-    }
-    timeLeft -= 0.5;
-  } else {
-    let stations = await Nevermore.Field.getDriverStations();
-    for (let station of stations) {
-      let state = await station.getState();
-      await station.setState({
-        emergencyStop: false,
-        enable: false,
-        mode: Nevermore.Field.Mode.TELEOP,
-        teamNumber: state.teamNumber,
-        allianceStation: state.allianceStation,
-        status: Nevermore.Field.DriverStationStatus.GOOD,
-        sequenceNumber: 0,
-        timeToDisplay: timeLeft,
-        matchNumber: 1,
-        eventName: "roboticon-2021"
-      });
+  swapGames(gameType: GameType) {
+    this.game.stopGame();
+    this.game.destroy();
+    switch (gameType) {
+      case GameType.DANCEPARTY:
+        this.game = new DanceParty();
+      case GameType.STUNBALL:
+        this.game = new StunBall();
+      default:
+        this.game = new Game(gameType);
     }
   }
-})
+}
+
+new App();
