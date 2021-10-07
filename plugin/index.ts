@@ -16,7 +16,6 @@ class App {
   }
 
   swapGames(gameType: GameType) {
-    console.log(gameType);
     this.game.stopGame();
     this.game.destroy();
     switch (gameType) {

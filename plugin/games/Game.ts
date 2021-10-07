@@ -22,7 +22,6 @@ export default class Game {
 
     /// Starts the Game
     async startGame(timeLeft: number): Promise<void> {
-        this.updateScoreTable();
         this.timeLeft = timeLeft;
         this.enabled = true;
     }
@@ -61,7 +60,7 @@ export default class Game {
 
     async updateScore(teamNumber: number, diff: number): Promise<void> {
         try {
-            let score = this.scores.get(teamNumber.toString());
+            let score = this.scores.get(teamNumber.toString()) ?? 0;
             this.scores.set(teamNumber.toString(), score + diff);
             await this.sendScores();
         } catch (_) {}
@@ -103,24 +102,6 @@ export default class Game {
             matchNumber: 1,
             eventName: "roboticon-2021"
         };
-    }
-
-    async updateScoreTable(): Promise<void> {
-        let teams = await Nevermore.Field.getTeamToAllianceStationMap();
-        // Add Teams.
-        for (let actualTeam of Object.values(teams)) {
-            let exists = false;
-
-            for (let team of Object.values(this.scores)) {
-                if (actualTeam.toString() == team) {
-                    exists = true;
-                }
-            }
-
-            if (!exists) {
-                this.scores.set(actualTeam.toString(), 0);
-            }
-        }
     }
 
     /// Runs a per second counter.
