@@ -36,6 +36,7 @@ export default class Game {
     /// Reset the Game
     async resetGame(): Promise<void> {
         this.scores = new Map();
+        await this.sendScores();
     }
 
     /// Pauses the Game
@@ -55,7 +56,7 @@ export default class Game {
     }
 
     async sendScores(): Promise<void> {
-        await Nevermore.PubSub.publish("roboticonReplyScores", this.scores);
+        await Nevermore.PubSub.publish("roboticonReplyScores", Object.fromEntries(this.scores));
     }
 
     async updateScore(teamNumber: number, diff: number): Promise<void> {
