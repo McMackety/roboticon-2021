@@ -17,7 +17,7 @@ export default class Game {
         Nevermore.PubSub.subscribe("roboticonUnpauseGame", async () => await this.unpauseGame());
         Nevermore.PubSub.subscribe("roboticonSetAllEStopped", async (eStopped: boolean) => await this.setAllEStopped(eStopped));
         Nevermore.PubSub.subscribe("roboticonRequestScores", async () => await this.sendScores());
-        Nevermore.PubSub.subscribe("roboticonUpdateScore", async (data: { teamNumber: number, scoreDifference: number}) => await this.updateScore(data.teamNumber, data.scoreDifference));
+        Nevermore.PubSub.subscribe("roboticonUpdateScore", async (data: { teamNumber: number, scoreDifference: number }) => await this.updateScore(data.teamNumber, data.scoreDifference));
     }
 
     /// Starts the Game
@@ -63,7 +63,7 @@ export default class Game {
             let score = this.scores.get(teamNumber.toString()) ?? 0;
             this.scores.set(teamNumber.toString(), score + diff);
             await this.sendScores();
-        } catch (_) {}
+        } catch (_) { }
     }
 
     /// Runs every tick of the Field.
@@ -71,12 +71,13 @@ export default class Game {
         let driverStationInfoList: Nevermore.Field.DriverStationConfirmedState[] = [];
 
         let driverStations = await Nevermore.Field.getDriverStations();
-        driverStations.forEach(async (driverStation) => {
+        for (const driverStation of driverStations) {
             try {
                 driverStationInfoList.push(await driverStation.getConfirmedState());
             } catch (_) {}
             await driverStation.setState(this.generateTeamState(this.enabled, await driverStation.getState()));
-        });
+        }
+
 
         let gameState: GameState = {
             gameType: this.gameType,
