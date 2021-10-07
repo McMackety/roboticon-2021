@@ -9,8 +9,8 @@ export class StunBall extends Game {
 
     constructor() {
         super(GameType.STUNBALL);
-        Nevermore.PubSub.subscribe("roboticonStunTeam", async (data: {alliance: Alliance, stunType: StunType}) => this.stunTeam(data.alliance, data.stunType));
-        Nevermore.PubSub.subscribe("roboticonRequestTeamStunUpdate", async () => this.teamStunUpdate());
+        Nevermore.PubSub.subscribe("roboticonStunTeam", async (data: {alliance: Alliance, stunType: StunType}) => await this.stunTeam(data.alliance, data.stunType));
+        Nevermore.PubSub.subscribe("roboticonRequestTeamStunUpdate", async () => await this.teamStunUpdate());
     }
 
     async stunTeam(alliance: Alliance, stunType: StunType) {
@@ -41,7 +41,7 @@ export class StunBall extends Game {
                 }, timeout * 1000);
             }
         }
-        Nevermore.PubSub.publish("roboticonTeamStunUpdate", {
+        await Nevermore.PubSub.publish("roboticonTeamStunUpdate", {
             redIsDisabled: this.redIsDisabled,
             redIsInCooldown: this.redIsInCooldown,
             blueIsDisabled: this.blueIsDisabled,
@@ -49,8 +49,8 @@ export class StunBall extends Game {
         });
     }
 
-    teamStunUpdate() {
-        Nevermore.PubSub.publish("roboticonTeamStunUpdate", {
+    async teamStunUpdate() {
+        await Nevermore.PubSub.publish("roboticonTeamStunUpdate", {
             redIsDisabled: this.redIsDisabled,
             redIsInCooldown: this.redIsInCooldown,
             blueIsDisabled: this.blueIsDisabled,
@@ -86,16 +86,16 @@ export class StunBall extends Game {
     
 
     override destroy() {
-        Nevermore.PubSub.unsubscribe("roboticonStartGame", async (timeLeft: number) => this.startGame(timeLeft));
-        Nevermore.PubSub.unsubscribe("roboticonStopGame", async () => this.stopGame());
-        Nevermore.PubSub.unsubscribe("roboticonResetGame", async () => this.resetGame());
-        Nevermore.PubSub.unsubscribe("roboticonPauseGame", async () => this.pauseGame());
-        Nevermore.PubSub.unsubscribe("roboticonUnpauseGame", async () => this.unpauseGame());
-        Nevermore.PubSub.unsubscribe("roboticonSetAllEStopped", async (eStopped: boolean) => this.setAllEStopped(eStopped));
-        Nevermore.PubSub.unsubscribe("roboticonRequestScores", async () => this.sendScores());
-        Nevermore.PubSub.unsubscribe("roboticonUpdateScore", async (data: { teamNumber: number, scoreDifference: number}) => this.updateScore(data.teamNumber, data.scoreDifference));
-        Nevermore.PubSub.unsubscribe("roboticonStunTeam", async (data: {alliance: Alliance, stunType: StunType}) => this.stunTeam(data.alliance, data.stunType));
-        Nevermore.PubSub.unsubscribe("roboticonRequestTeamStunUpdate", async () => this.teamStunUpdate());
+        Nevermore.PubSub.unsubscribe("roboticonStartGame");
+        Nevermore.PubSub.unsubscribe("roboticonStopGame");
+        Nevermore.PubSub.unsubscribe("roboticonResetGame");
+        Nevermore.PubSub.unsubscribe("roboticonPauseGame");
+        Nevermore.PubSub.unsubscribe("roboticonUnpauseGame");
+        Nevermore.PubSub.unsubscribe("roboticonSetAllEStopped");
+        Nevermore.PubSub.unsubscribe("roboticonRequestScores");
+        Nevermore.PubSub.unsubscribe("roboticonUpdateScore");
+        Nevermore.PubSub.unsubscribe("roboticonStunTeam");
+        Nevermore.PubSub.unsubscribe("roboticonRequestTeamStunUpdate");
     }
 }
 

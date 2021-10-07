@@ -11,13 +11,13 @@ export default class Game {
         this.gameType = gameType;
         setInterval(() => this.counter(), 1000);
         Nevermore.PubSub.subscribe("roboticonStartGame", async (timeLeft: number) => this.startGame(timeLeft));
-        Nevermore.PubSub.subscribe("roboticonStopGame", async () => this.stopGame());
-        Nevermore.PubSub.subscribe("roboticonResetGame", async () => this.resetGame());
-        Nevermore.PubSub.subscribe("roboticonPauseGame", async () => this.pauseGame());
-        Nevermore.PubSub.subscribe("roboticonUnpauseGame", async () => this.unpauseGame());
-        Nevermore.PubSub.subscribe("roboticonSetAllEStopped", async (eStopped: boolean) => this.setAllEStopped(eStopped));
-        Nevermore.PubSub.subscribe("roboticonRequestScores", async () => this.sendScores());
-        Nevermore.PubSub.subscribe("roboticonUpdateScore", async (data: { teamNumber: number, scoreDifference: number}) => this.updateScore(data.teamNumber, data.scoreDifference));
+        Nevermore.PubSub.subscribe("roboticonStopGame", async () => await this.stopGame());
+        Nevermore.PubSub.subscribe("roboticonResetGame", async () => await this.resetGame());
+        Nevermore.PubSub.subscribe("roboticonPauseGame", async () => await this.pauseGame());
+        Nevermore.PubSub.subscribe("roboticonUnpauseGame", async () => await this.unpauseGame());
+        Nevermore.PubSub.subscribe("roboticonSetAllEStopped", async (eStopped: boolean) => await this.setAllEStopped(eStopped));
+        Nevermore.PubSub.subscribe("roboticonRequestScores", async () => await this.sendScores());
+        Nevermore.PubSub.subscribe("roboticonUpdateScore", async (data: { teamNumber: number, scoreDifference: number}) => await this.updateScore(data.teamNumber, data.scoreDifference));
     }
 
     /// Starts the Game
@@ -55,7 +55,7 @@ export default class Game {
     }
 
     async sendScores(): Promise<void> {
-        Nevermore.PubSub.publish("roboticonReplyScores", this.scores);
+        await Nevermore.PubSub.publish("roboticonReplyScores", this.scores);
     }
 
     async updateScore(teamNumber: number, diff: number): Promise<void> {
@@ -72,7 +72,9 @@ export default class Game {
 
         let driverStations = await Nevermore.Field.getDriverStations();
         driverStations.forEach(async (driverStation) => {
-            driverStationInfoList.push(await driverStation.getConfirmedState());
+            try {
+                driverStationInfoList.push(await driverStation.getConfirmedState());
+            } catch (_) {}
             await driverStation.setState(this.generateTeamState(this.enabled, await driverStation.getState()));
         });
 
@@ -84,7 +86,7 @@ export default class Game {
             driverStationInfo: driverStationInfoList
         };
 
-        Nevermore.PubSub.publish("roboticonGameState", gameState);
+        await Nevermore.PubSub.publish("roboticonGameState", gameState);
     }
 
     generateTeamState(enabled: boolean, state: Nevermore.Field.DriverStationState): Nevermore.Field.DriverStationState {
@@ -132,13 +134,13 @@ export default class Game {
     }
 
     destroy() {
-        Nevermore.PubSub.unsubscribe("roboticonStartGame", async (timeLeft: number) => this.startGame(timeLeft));
-        Nevermore.PubSub.unsubscribe("roboticonStopGame", async () => this.stopGame());
-        Nevermore.PubSub.unsubscribe("roboticonResetGame", async () => this.resetGame());
-        Nevermore.PubSub.unsubscribe("roboticonPauseGame", async () => this.pauseGame());
-        Nevermore.PubSub.unsubscribe("roboticonUnpauseGame", async () => this.unpauseGame());
-        Nevermore.PubSub.unsubscribe("roboticonSetAllEStopped", async (eStopped: boolean) => this.setAllEStopped(eStopped));
-        Nevermore.PubSub.unsubscribe("roboticonRequestScores", async () => this.sendScores());
-        Nevermore.PubSub.unsubscribe("roboticonUpdateScore", async (data: { teamNumber: number, scoreDifference: number}) => this.updateScore(data.teamNumber, data.scoreDifference));
+        Nevermore.PubSub.unsubscribe("roboticonStartGame");
+        Nevermore.PubSub.unsubscribe("roboticonStopGame");
+        Nevermore.PubSub.unsubscribe("roboticonResetGame");
+        Nevermore.PubSub.unsubscribe("roboticonPauseGame");
+        Nevermore.PubSub.unsubscribe("roboticonUnpauseGame");
+        Nevermore.PubSub.unsubscribe("roboticonSetAllEStopped");
+        Nevermore.PubSub.unsubscribe("roboticonRequestScores");
+        Nevermore.PubSub.unsubscribe("roboticonUpdateScore");
     }
 }
