@@ -7,7 +7,7 @@ class App {
   game: Game;
   constructor() {
     this.game = new Game(GameType.BASIC);
-    Nevermore.PubSub.subscribe("roboticonSwitchGames", async (gameType: GameType) => this.swapGames(gameType))
+    Nevermore.PubSub.subscribe("roboticonSwitchGames", async (gameType: GameType) =>  await this.swapGames(gameType))
     Nevermore.Field.on("tick", async () =>  await this.tick());
   }
 
@@ -15,9 +15,9 @@ class App {
     await this.game.tick();
   }
 
-  swapGames(gameType: GameType) {
-    this.game.stopGame();
-    this.game.destroy();
+  async swapGames(gameType: GameType) {
+    await this.game.stopGame();
+    await this.game.destroy();
     switch (gameType) {
       case GameType.DANCEPARTY:
         this.game = new DanceParty();

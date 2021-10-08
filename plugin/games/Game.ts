@@ -116,14 +116,14 @@ export default class Game {
         }
     }
 
-    destroy() {
-        Nevermore.PubSub.unsubscribe("roboticonStartGame");
-        Nevermore.PubSub.unsubscribe("roboticonStopGame");
-        Nevermore.PubSub.unsubscribe("roboticonResetGame");
-        Nevermore.PubSub.unsubscribe("roboticonPauseGame");
-        Nevermore.PubSub.unsubscribe("roboticonUnpauseGame");
-        Nevermore.PubSub.unsubscribe("roboticonSetAllEStopped");
-        Nevermore.PubSub.unsubscribe("roboticonRequestScores");
-        Nevermore.PubSub.unsubscribe("roboticonUpdateScore");
+    async destroy() {
+        await Nevermore.PubSub.unsubscribe("roboticonStartGame");
+        await Nevermore.PubSub.unsubscribe("roboticonStopGame");
+        await Nevermore.PubSub.unsubscribe("roboticonResetGame");
+        await Nevermore.PubSub.unsubscribe("roboticonPauseGame");
+        await Nevermore.PubSub.unsubscribe("roboticonUnpauseGame");
+        await Nevermore.PubSub.unsubscribe("roboticonSetAllEStopped");
+        await Nevermore.PubSub.unsubscribe("roboticonRequestScores");
+        await Nevermore.PubSub.unsubscribe("roboticonUpdateScore");
     }
 }
