@@ -21,10 +21,12 @@ class App {
     switch (gameType) {
       case GameType.DANCEPARTY:
         this.game = new DanceParty();
+        break
       case GameType.STUNBALL:
         this.game = new StunBall();
+        break
       default:
-        this.game = new Game(gameType);
+        this.game = new Game(GameType.BASIC);
     }
   }
 }

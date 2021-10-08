@@ -6,31 +6,37 @@ export class DanceParty extends Game {
 
     constructor() {
         super(GameType.DANCEPARTY);
-        Nevermore.PubSub.subscribe("roboticonRequestCurrentDanceMove", async (teamNumber: number) => await this.replyCurrentDanceMove(teamNumber));
-        Nevermore.PubSub.subscribe("roboticonRequestNewDanceMove", async (teamNumber: number) => await this.replyNewDanceMove(teamNumber));
+        Nevermore.PubSub.subscribe("roboticonRequestNewDanceMove", async (teamNumber: number) => await this.newDanceMove(teamNumber));
+    }
+
+    override async tick(): Promise<void> {
+        super.tick()
+        await this.replyCurrentDanceMoves()
     }
 
     override async resetGame() {
         this.scores = new Map();
         this.currentDanceMoves = new Map();
     }
+
+    override async startGame(timeLeft: number): Promise<void> {
+        super.startGame(timeLeft)
+        for (const ds of Object.keys(await Nevermore.Field.getTeamToAllianceStationMap())) {
+            this.newDanceMove(parseInt(ds))
+        }
+    }
     
-    async replyCurrentDanceMove(teamNumber: number) {
-        let currentDanceMove: DanceMove = null;
-        try {
-            currentDanceMove = this.currentDanceMoves.get(teamNumber.toString());
-        } catch(_) {}
-        await Nevermore.PubSub.publish("roboticonReplyCurrentDanceMove", currentDanceMove);
+    async replyCurrentDanceMoves() {
+        await Nevermore.PubSub.publish("roboticonReplyCurrentDanceMoves", Object.fromEntries(this.currentDanceMoves));
     }
 
-    async replyNewDanceMove(teamNumber: number) {
+    async newDanceMove(teamNumber: number) {
         let currentDanceMove: DanceMove = null;
         try {
             currentDanceMove = this.currentDanceMoves.get(teamNumber.toString());
         } catch(_) {}
         currentDanceMove = nextDanceMove(currentDanceMove);
         this.currentDanceMoves.set(teamNumber.toString(), currentDanceMove);
-        await Nevermore.PubSub.publish("roboticonReplyNewDanceMove", currentDanceMove);
     }
 
     override async destroy() {

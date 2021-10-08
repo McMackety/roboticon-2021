@@ -9,8 +9,12 @@ export class StunBall extends Game {
 
     constructor() {
         super(GameType.STUNBALL);
-        Nevermore.PubSub.subscribe("roboticonStunTeam", async (data: {alliance: Alliance, stunType: StunType}) => await this.stunTeam(data.alliance, data.stunType));
-        Nevermore.PubSub.subscribe("roboticonRequestTeamStunUpdate", async () => await this.teamStunUpdate());
+        Nevermore.PubSub.subscribe("roboticonStunTeam", async (data: { alliance: Alliance, stunType: StunType }) => await this.stunTeam(data.alliance, data.stunType));
+    }
+
+    override async tick(): Promise<void> {
+        super.tick()
+        await this.teamStunUpdate()
     }
 
     async stunTeam(alliance: Alliance, stunType: StunType) {
@@ -41,12 +45,6 @@ export class StunBall extends Game {
                 }, timeout * 1000);
             }
         }
-        await Nevermore.PubSub.publish("roboticonTeamStunUpdate", {
-            redIsDisabled: this.redIsDisabled,
-            redIsInCooldown: this.redIsInCooldown,
-            blueIsDisabled: this.blueIsDisabled,
-            blueIsInCooldown: this.blueIsInCooldown
-        });
     }
 
     async teamStunUpdate() {
@@ -60,6 +58,10 @@ export class StunBall extends Game {
 
     override async resetGame() {
         this.scores = new Map();
+        this.redIsDisabled = false;
+        this.redIsInCooldown = false;
+        this.blueIsDisabled = false;
+        this.blueIsInCooldown = false;
     }
 
     override generateTeamState(enabled: boolean, state: Nevermore.Field.DriverStationState): Nevermore.Field.DriverStationState {
@@ -83,7 +85,7 @@ export class StunBall extends Game {
             eventName: "roboticon-2021"
         };
     }
-    
+
 
     override async destroy() {
         await Nevermore.PubSub.unsubscribe("roboticonStartGame");
@@ -106,7 +108,7 @@ enum StunType {
 }
 
 function getStunDuration(stunType: StunType) {
-    switch(stunType) {
+    switch (stunType) {
         case StunType.LOWERGOAL:
             return 2;
         case StunType.UPPERGOAL:
@@ -119,7 +121,7 @@ function getStunDuration(stunType: StunType) {
 }
 
 function getStunCooldown(stunType: StunType): number {
-    switch(stunType) {
+    switch (stunType) {
         case StunType.LOWERGOAL:
             return 5;
         case StunType.UPPERGOAL:
@@ -137,7 +139,7 @@ enum Alliance {
 }
 
 function allianceStationToAlliance(allianceStation: Nevermore.Field.AllianceStation) {
-    switch(allianceStation) {
+    switch (allianceStation) {
         case Nevermore.Field.AllianceStation.RED1:
             return Alliance.RED
         case Nevermore.Field.AllianceStation.RED2:
