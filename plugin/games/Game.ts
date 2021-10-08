@@ -73,7 +73,8 @@ export default class Game {
         let driverStations = await Nevermore.Field.getDriverStations();
         for (const driverStation of driverStations) {
             try {
-                driverStationInfoList.push(await driverStation.getConfirmedState());
+                const state = await driverStation.getConfirmedState();
+                driverStationInfoList.push(state);
             } catch (_) {}
             await driverStation.setState(this.generateTeamState(this.enabled, await driverStation.getState()));
         }
